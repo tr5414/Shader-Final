@@ -5,4 +5,4 @@ ProjectSettings
 Temp
 .DS_Store
 *.csproj
-*.slm
+*.sln

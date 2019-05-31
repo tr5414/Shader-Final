@@ -3,8 +3,13 @@
 	Properties
 	{
 		_MainTex("Texture", 2D) = "white" {}
-        _Alive ("Alive", Color) = (1,1,1,1)
-        _Dead ("Dead", Color) = (0,0,0,1)
+		_Alive("Alive", Color) = (1,1,1,1)
+		_Test("Test", Color) = (0,0,1,1)
+		_PosX("PosX", Float) = 0.5
+		_PosY("PosY", Float) = 0.5
+		_PS("PS", Float) = 0.01 // PixelSize A.K.A. how big the pixel will be.
+		_Changed("PS", Int) = 1 // Sub for bools
+		_Dead("Dead", Color) = (0,0,0,1)
     }
 	SubShader
 	{
@@ -12,7 +17,6 @@
 		
 		Pass
 		{
-
 			CGPROGRAM
 			#pragma vertex vert
 			#pragma fragment frag
@@ -21,7 +25,12 @@
             
             uniform float4 _MainTex_TexelSize;
             uniform float4 _Alive;
-            uniform float4 _Dead;       
+            uniform float4 _Test;
+            uniform float4 _Dead; 
+			uniform float _PosX;
+			uniform float _PosY;
+			uniform float _PS;
+			uniform int _Changed;
             
 			struct appdata
 			{
@@ -46,6 +55,9 @@
            
             sampler2D _MainTex;
             
+			uniform bool runPixelChange = false;
+			uniform float _tempA;
+			
             // Used by frag because the compiler thinks float4 != Color
             bool colorsAreEqual(float4 c1, float4 c2){
                 return c1[0] == c2[0] && // red
@@ -56,15 +68,24 @@
 
 			fixed4 frag(v2f i) : SV_Target
 			{
-            
                 float2 texel = float2(
                     _MainTex_TexelSize.x, 
                     _MainTex_TexelSize.y 
                 );
                 
+
                 float cx = i.uv.x;
                 float cy = i.uv.y;
                 
+				// texel size for both x and y is 0.015
+				if (cx>_PosX-_PS && cx<_PosX+_PS && _Changed==0) {
+					if (cy > _PosY - _PS && cy<_PosY + _PS ) {
+						_Changed = 1;
+						return _Alive;
+					}
+				}
+				
+
                 float4 C = tex2D( _MainTex, float2( cx, cy ));   
                 
                 float up = i.uv.y + texel.y * 1;
@@ -90,6 +111,7 @@
                     }
                 }
 
+				// can make _Alive an array with colors. 
                 if (colorsAreEqual(C, _Alive)) { // Originally we just checked the red channel
                     if (cnt == 2 || cnt == 3) {
                         //Any live cell with two or three live neighbours lives on to the next generation.

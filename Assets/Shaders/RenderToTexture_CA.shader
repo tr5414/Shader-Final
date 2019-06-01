@@ -54,9 +54,6 @@
             
            
             sampler2D _MainTex;
-            
-			uniform bool runPixelChange = false;
-			uniform float _tempA;
 			
             // Used by frag because the compiler thinks float4 != Color
             bool colorsAreEqual(float4 c1, float4 c2){
@@ -103,16 +100,16 @@
                 arr[5] = tex2D(  _MainTex, float2( left , down )); //SW
                 arr[6] = tex2D(  _MainTex, float2( left , cy ));   //W
                 arr[7] = tex2D(  _MainTex, float2( left , up ));   //NW
-
+			
                 int cnt = 0;
                 for(int i=0;i<8;i++){
-                    if (colorsAreEqual(arr[i], _Alive)) {
+                    if (colorsAreEqual(arr[i].rgba, C)) {
                         cnt++;
                     }
                 }
 
 				// can make _Alive an array with colors. 
-                if (colorsAreEqual(C, _Alive)) { // Originally we just checked the red channel
+                if (colorsAreEqual(C.rgba, _Alive)) { // Originally we just checked the red channel
                     if (cnt == 2 || cnt == 3) {
                         //Any live cell with two or three live neighbours lives on to the next generation.
                         return _Alive;

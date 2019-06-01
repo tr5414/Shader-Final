@@ -136,7 +136,7 @@ public class PingPong_CellularAutomata : MonoBehaviour
             outputTex = texA;
         }
 
-        if (Input.GetKeyDown("space")) { //undo til here
+        if (Input.GetKey("space")) { //undo til here
             int squareSize = 10; // was used to make the pixel added larger. Shader has "_PS" which controls that now.
             // Still need to remove this.
            
@@ -149,7 +149,7 @@ public class PingPong_CellularAutomata : MonoBehaviour
             rend.material.SetFloat("_PosX",i);
             rend.material.SetFloat("_PosY", j);
             rend.material.SetInt("_Changed",0); // Because shaders are too good for bools apparently
-            Debug.Log("Added pixels above "+ i +" "+ j);
+            //Debug.Log("Added pixels above "+ i +" "+ j);
 
             // Keeping just in case.
             //for (int x = i; x < i + squareSize; x++) {
@@ -182,7 +182,7 @@ public class PingPong_CellularAutomata : MonoBehaviour
         rend.material.shader = ouputTextureShader;
         rend.material.SetColor("_Alive", _Alive);
         rend.material.SetColor("_Dead", _Dead);
-
+        Debug.Log(_Alive);
         
 
         rend.material.SetTexture("_MainTex", outputTex);

@@ -6,7 +6,8 @@ using UnityEngine;
 public class BurstParticleScript: MonoBehaviour {
 
     ParticleSystem ps;
-    public float threshold = 0.4f;
+    public float emitThreshold = 0.515f;
+    public float burstThreshold = 0.525f;
 
     void Start () 
     {
@@ -45,8 +46,11 @@ public class BurstParticleScript: MonoBehaviour {
 		
         // if mag is greater than some threshold(0.6)
         // emit particle using emit function
-        if(mag > threshold){
+        if(mag > emitThreshold){
         	ps.Emit(1);
+        }
+        if(mag > burstThreshold){
+        	ps.Emit(100);
         }
 
 	}

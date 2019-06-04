@@ -19,12 +19,12 @@ public class PingPong_CellularAutomata : MonoBehaviour
     Shader cellularAutomataShader;
     Shader ouputTextureShader;
 
-    int width;
-    int height;
+    static int width;
+    static int height;
     public int pointA;
     public int pointB;
 
-    Renderer rend;
+    static Renderer rend;
     int count = 0;
 
     void Start()
@@ -115,9 +115,33 @@ public class PingPong_CellularAutomata : MonoBehaviour
 
     }
 
-   
-    void Update()
-    {
+    public void AddPixel(){
+        float i = Random.Range(0, height);
+        float j = Random.Range(0, width);
+
+        i = (i) / height; // Normalizing the range
+        j = (j) / width;
+
+        rend.material.SetFloat("_PosX", i);
+        rend.material.SetFloat("_PosY", j);
+        rend.material.SetInt("_Changed", 0); // Because shaders are too good for bools apparently
+        //Debug.Log("Added pixels above "+ i +" "+ j);
+
+        // Keeping just in case.
+        //for (int x = i; x < i + squareSize; x++) {
+        //    for (int y = j; y < j + squareSize; y++) {
+        //        //inputTex.SetPixel(x, y, _Alive);
+        //        //texA.SetPixel(x, y, _Alive);
+        //        //texB.SetPixel(x, y, _Alive);
+        //        rend.material.SetFloat("_PosX", x);
+        //        rend.material.SetFloat("_PosY", y);
+        //
+        //    }
+        //}
+    }
+
+
+    void Update(){
         
         //set active shader to be a shader that computes the next timestep
         //of the Cellular Automata system
@@ -135,20 +159,22 @@ public class PingPong_CellularAutomata : MonoBehaviour
             inputTex = texB;
             outputTex = texA;
         }
+        
+        
+        Debug.Log("_Test "+rend.material.GetColor("_Test"));
 
-        if (Input.GetKey("space")) { //undo til here
-            int squareSize = 10; // was used to make the pixel added larger. Shader has "_PS" which controls that now.
-            // Still need to remove this.
-           
-            float i = Random.Range(0, height - squareSize);
-            float j = Random.Range(0, width - squareSize);
+        rend.material.SetTexture("_MainTex", inputTex);
+
+        if (Input.GetKey("space")) {
+            float i = Random.Range(0, height);
+            float j = Random.Range(0, width);
 
             i = (i) / height; // Normalizing the range
             j = (j) / width;
 
-            rend.material.SetFloat("_PosX",i);
+            rend.material.SetFloat("_PosX", i);
             rend.material.SetFloat("_PosY", j);
-            rend.material.SetInt("_Changed",0); // Because shaders are too good for bools apparently
+            rend.material.SetInt("_Changed", 0); // Because shaders are too good for bools apparently
             //Debug.Log("Added pixels above "+ i +" "+ j);
 
             // Keeping just in case.
@@ -164,11 +190,6 @@ public class PingPong_CellularAutomata : MonoBehaviour
             //}
         }
 
-
-        rend.material.SetTexture("_MainTex", inputTex);
-        
-        
-
         //source, destination, material
         Graphics.Blit(inputTex, rt1, rend.material);
 
@@ -182,7 +203,8 @@ public class PingPong_CellularAutomata : MonoBehaviour
         rend.material.shader = ouputTextureShader;
         rend.material.SetColor("_Alive", _Alive);
         rend.material.SetColor("_Dead", _Dead);
-        Debug.Log(_Alive);
+        Debug.Log("_Alive "+_Alive);
+       
         
 
         rend.material.SetTexture("_MainTex", outputTex);

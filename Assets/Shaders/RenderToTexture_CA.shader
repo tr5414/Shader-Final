@@ -26,6 +26,7 @@
 				uniform float4 _MainTex_TexelSize;
 				uniform float4 _Alive;
 				uniform float4 _Dead;
+				uniform float4 _Test;
 				uniform float _PosX;
 				uniform float _PosY;
 				uniform float _PS;
@@ -60,8 +61,8 @@
 				bool colorsAreEqual(float4 c1, float4 c2) {
 					return  c1[0] == c2[0] && // red
 							c1[1] == c2[1] && // green
-							c1[2] == c2[2] && // blue
-							c1[3] == c2[3];   // alpha
+							c1[2] == c2[2]; // blue
+							//c1[3] == c2[3];   // alpha
 				}
 
 				fixed4 frag(v2f i) : SV_Target
@@ -85,7 +86,7 @@
 
 
 					float4 C = tex2D(_MainTex, float2(cx, cy));
-					//_Test = C;
+					_Test = tex2D(_MainTex, float2(cx, cy));
 					float up = i.uv.y + texel.y * 1;
 					float down = i.uv.y + texel.y * -1;
 					float right = i.uv.x + texel.x * 1;
@@ -104,36 +105,37 @@
 
 					int cnt = 0;
 					for (int i = 0; i < 8; i++) {
-						if (colorsAreEqual(arr[i].rgba, _Alive)) {
+						if (colorsAreEqual(arr[i].rgba, _Alive.rgba)) {
 							cnt++;
 						}
 					}
 
 					// can make _Alive an array with colors. 
-					if (colorsAreEqual(C.rgba, _Alive)) { // Originally we just checked the red channel
+					if (colorsAreEqual(C.rgba, _Alive.rgba)) { // Originally we just checked the red channel
 						if (cnt == 2 || cnt == 3) {
 							//Any live cell with two or three live neighbours lives on to the next generation.
 							return _Alive;
 						}
-	 else {
-							//Any live cell with fewer than two live neighbours dies, as if caused by underpopulation.
-							//Any live cell with more than three live neighbours dies, as if by overpopulation.
-							return _Dead;
+						else {
+								//Any live cell with fewer than two live neighbours dies, as if caused by underpopulation.
+								//Any live cell with more than three live neighbours dies, as if by overpopulation.
+								return _Dead;
+							}
+					}
+					else { //cell is dead
+						if (cnt == 3) {
+							//Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
+							return _Alive;
+						}
+						else {
+								return _Dead;
 						}
 					}
-	 else { //cell is dead
-	  if (cnt == 3) {
-		  //Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
-		  return _Alive;
-	  }
-else {
- return _Dead;
-}
-}
-}
+					
+				}
 
-ENDCG
-}
+				ENDCG
+			}
 
 		}
 			FallBack "Diffuse"

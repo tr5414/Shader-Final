@@ -5,7 +5,7 @@ using UnityEngine;
 public class PingPong_CellularAutomata : MonoBehaviour
 {
 
-    public Color _Alive = new Color(1,1,1,1);
+    //public Color _Alive = new Color(1,1,1,1);
     public Color _Dead = new Color(0,0,0,1);
     public int _TickSpeed = 2;
     public float posX = 0.75f;
@@ -25,14 +25,15 @@ public class PingPong_CellularAutomata : MonoBehaviour
     public int pointB;
 
     static Renderer rend;
+    bool runPixelChange;
     int count = 0;
 
     void Start()
     {
         //print(SystemInfo.copyTextureSupport);
 
-        width = 64;
-        height = 64;
+        width = 128;
+        height = 128;
 
         texA = new Texture2D(width, height, TextureFormat.RGBA32, false);
         texB = new Texture2D(width, height, TextureFormat.RGBA32, false);
@@ -140,15 +141,57 @@ public class PingPong_CellularAutomata : MonoBehaviour
         //}
     }
 
+    //void pixelChange()
+    //{
+    //
+    //    //rend.material.SetFloat("_PosX", i);
+    //    //rend.material.SetFloat("_PosY", j);
+    //    //rend.material.SetInt("_Changed", 0); // Because shaders are too good for bools apparently
+    //    //Debug.Log("Added pixels above "+ i +" "+ j);
+    //    
+    //    // Keeping just in case.
+    //   
+    //}
 
+    // undo until here
+    IEnumerator pixelChange()
+    {
+        float i = Random.Range(0, height);
+        float j = Random.Range(0, width);
+        float squareSize = 6;
+
+        i = (i) / height; // Normalizing the range
+        j = (j) / width;
+        for (float x = i; x < i + (squareSize/height); x+=(2f/height)) {
+            for (float y = j; y < j + (squareSize/width); y+=(2f/width)) {
+                //inputTex.SetPixel(x, y, _Alive);
+                //texA.SetPixel(x, y, _Alive);
+                //texB.SetPixel(x, y, _Alive);
+                //Shader old = rend.material.shader;
+                //rend.material.shader = cellularAutomataShader;
+                Debug.Log("Changed "+x+" "+y );
+                rend.material.SetInt("_Changed", 0);
+                rend.material.SetFloat("_PosX", x);
+                rend.material.SetFloat("_PosY", y);
+                
+                //rend.material.shader = old;
+                yield return new WaitForSeconds(.001f);
+            }
+        }
+    }
     void Update(){
         
         //set active shader to be a shader that computes the next timestep
         //of the Cellular Automata system
         rend.material.shader = cellularAutomataShader;
-        rend.material.SetColor("_Alive", _Alive);
+        //rend.material.SetColor("_Alive", _Alive);
         rend.material.SetColor("_Dead", _Dead);
+        Debug.Log("Test 1");
         
+
+       // if (runPixelChange == true && count % _TickSpeed == 0) {
+       // }
+
         if (count % _TickSpeed == 0)
         {
             inputTex = texA;
@@ -161,13 +204,19 @@ public class PingPong_CellularAutomata : MonoBehaviour
         }
         
         
-        Debug.Log("_Test "+rend.material.GetColor("_Test"));
+      //  Debug.Log("_Test "+rend.material.GetColor("_Test"));
 
         rend.material.SetTexture("_MainTex", inputTex);
-
-        if (Input.GetKey("space")) {
-            float i = Random.Range(0, height);
-            float j = Random.Range(0, width);
+       if (Input.GetKeyDown("space")) {
+            int temp = Random.Range(0, 7);
+            rend.material.SetInt("_colorControl",temp);
+            StartCoroutine("pixelChange");
+            Debug.Log("Test 2");
+        }
+        
+        if (Input.GetKey("d")) {
+            float i = height/2;
+            float j = width/2;
 
             i = (i) / height; // Normalizing the range
             j = (j) / width;
@@ -175,19 +224,6 @@ public class PingPong_CellularAutomata : MonoBehaviour
             rend.material.SetFloat("_PosX", i);
             rend.material.SetFloat("_PosY", j);
             rend.material.SetInt("_Changed", 0); // Because shaders are too good for bools apparently
-            //Debug.Log("Added pixels above "+ i +" "+ j);
-
-            // Keeping just in case.
-            //for (int x = i; x < i + squareSize; x++) {
-            //    for (int y = j; y < j + squareSize; y++) {
-            //        //inputTex.SetPixel(x, y, _Alive);
-            //        //texA.SetPixel(x, y, _Alive);
-            //        //texB.SetPixel(x, y, _Alive);
-            //        rend.material.SetFloat("_PosX", x);
-            //        rend.material.SetFloat("_PosY", y);
-            //
-            //    }
-            //}
         }
 
         //source, destination, material
@@ -201,15 +237,15 @@ public class PingPong_CellularAutomata : MonoBehaviour
         //set the active shader to be a regular shader that maps the current
         //output texture onto a game object
         rend.material.shader = ouputTextureShader;
-        rend.material.SetColor("_Alive", _Alive);
+        //rend.material.SetColor("_Alive", _Alive);
         rend.material.SetColor("_Dead", _Dead);
-        Debug.Log("_Alive "+_Alive);
+        //Debug.Log("_Alive "+_Alive);
        
         
 
         rend.material.SetTexture("_MainTex", outputTex);
         rend.material.SetInt("_Changed", 1);
-
+        
 
         count++;
     }

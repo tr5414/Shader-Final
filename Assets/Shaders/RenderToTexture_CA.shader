@@ -3,12 +3,13 @@
 	Properties
 	{
 		_MainTex("Texture", 2D) = "white" {}
-		_Alive("Alive", Color) = (1,1,1,1)
+		//_Alive("Alive", Color) = "white"
 		_Test("Test", Color) = (1,1,1,1)
 		_PosX("PosX", Float) = 0.5
 		_PosY("PosY", Float) = 0.5
 		_PS("PS", Float) = 0.01 // PixelSize A.K.A. how big the pixel will be.
 		_Changed("PS", Int) = 1 // Sub for bools
+		_colorControl("colorControl", Int) = 4 //
 		_Dead("Dead", Color) = (0,0,0,1)
 	}
 		SubShader
@@ -24,13 +25,15 @@
 				#include "UnityCG.cginc"
 
 				uniform float4 _MainTex_TexelSize;
-				uniform float4 _Alive;
+				uniform float4 _Alive[8];
+				
 				uniform float4 _Dead;
 				uniform float4 _Test;
 				uniform float _PosX;
 				uniform float _PosY;
 				uniform float _PS;
 				uniform int _Changed;
+				uniform int _colorControl;
 
 				struct appdata
 				{
@@ -71,16 +74,23 @@
 						_MainTex_TexelSize.x,
 						_MainTex_TexelSize.y
 					);
-
+					_Alive[0] = float4(1, 1, 1, 1);
+					_Alive[1] = float4(0, 0, 0, 1);
+					_Alive[2] = float4(1, 0, 1, 1);
+					_Alive[3] = float4(1, 1, 0, 1);
+					_Alive[4] = float4(0, 1, 1, 1);
+					_Alive[5] = float4(0, 1, 0, 1);
+					_Alive[6] = float4(0, 0, 1, 1);
+					_Alive[7] = float4(1, 0, 0, 1);
 
 					float cx = i.uv.x;
 					float cy = i.uv.y;
-
+					
 					// texel size for both x and y is 0.015
 					if (cx > _PosX - _PS && cx < _PosX + _PS && _Changed == 0) {
 						if (cy > _PosY - _PS && cy < _PosY + _PS) {
 							_Changed = 1;
-							return _Alive;
+							return _Alive[_colorControl];
 						}
 					}
 
@@ -102,41 +112,42 @@
 					arr[5] = tex2D(_MainTex, float2(left , down)); //SW
 					arr[6] = tex2D(_MainTex, float2(left , cy));   //W
 					arr[7] = tex2D(_MainTex, float2(left , up));   //NW
-
-					int cnt = 0;
-					for (int i = 0; i < 8; i++) {
-						if (colorsAreEqual(arr[i].rgba, _Alive.rgba)) {
-							cnt++;
+					// Change this to a for loop for all alive colors
+					
+					for (int w = 0; w < 8; w++) {
+						int cnt = 0;
+						for (int i = 0; i < 8; i++) {
+							if (colorsAreEqual(arr[i].rgba, _Alive[w].rgba)) {
+								cnt++;
+							}
 						}
-					}
 
-					// can make _Alive an array with colors. 
-					if (colorsAreEqual(C.rgba, _Alive.rgba)) { // Originally we just checked the red channel
-						if (cnt == 2 || cnt == 3) {
-							//Any live cell with two or three live neighbours lives on to the next generation.
-							return _Alive;
-						}
-						else {
+						// can make _Alive an array with colors. 
+						if (colorsAreEqual(C.rgba, _Alive[w].rgba)) { // Originally we just checked the red channel
+							if (cnt == 2 || cnt == 3) {
+								//Any live cell with two or three live neighbours lives on to the next generation.
+								return _Alive[w];
+							}
+							else {
 								//Any live cell with fewer than two live neighbours dies, as if caused by underpopulation.
 								//Any live cell with more than three live neighbours dies, as if by overpopulation.
 								return _Dead;
 							}
-					}
-					else { //cell is dead
+						}
+						
 						if (cnt == 3) {
 							//Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
-							return _Alive;
+							return _Alive[w];
 						}
-						else {
-								return _Dead;
-						}
+							
 					}
-					
+					return _Dead;
 				}
+
 
 				ENDCG
 			}
 
 		}
-			FallBack "Diffuse"
+		FallBack "Diffuse"
 }

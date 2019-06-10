@@ -40,6 +40,6 @@ public class AudioScript : MonoBehaviour
         if(mag>0.6)
             root.GetComponent<PingPong_CellularAutomata>().AddPixel();
 
-        Debug.Log(mag);
+        //Debug.Log(mag);
     }
 }

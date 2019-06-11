@@ -2,21 +2,20 @@
 {
     Properties
     {
-        //_MainTex("Texture", 2D) = "white" {}
+
     }
     SubShader
     {
-        /*
+        // These things don't seem to affect anything
         Tags { "RenderType"="Opaque" }
         LOD 100
-        */
 
         Pass
         {
-            //Tags { "LightMode" = "ForwardAdd" } //Important! In Unity, point lights are calculated in the the ForwardAdd pass
+            Tags { "LightMode" = "ForwardAdd" } //Important! In Unity, point lights are calculated in the the ForwardAdd pass
             //Blend One One //Turn on additive blending if you have more than one point light
 
-            //Cull off // ?
+            //Cull off // What does this do? It doesn't seem to change anything either
 
             CGPROGRAM
             #pragma vertex vert
@@ -28,16 +27,13 @@
             {
                 float4 vertex : POSITION;
                 float3 normal : NORMAL;
-                //float2 uv : TEXCOORD0;
             };
 
             struct v2f
             {             
                 float4 vertex : SV_POSITION;
                 float3 normal : NORMAL;
-                //float2 uv : TEXCOORD0;
                 float3 vertexInWorldCoords : TEXCOORD1;
-                //float heightVal : TEXCOORD2;
             };
 
             uniform sampler _MainTex;
@@ -50,14 +46,13 @@
 
                 o.vertexInWorldCoords = mul(unity_ObjectToWorld, v.vertex);
                 o.normal = UnityObjectToWorldNormal(v.normal);
+                // The line is assumed to go from -1 to 1 on the world x-axis
                 float4 xyz = float4(
                         v.vertex.x,
-                        v.vertex.y + _Magnitudes[floor((v.vertex.x+2)/(4*_NumPartitions))],
+                        v.vertex.y + 100*_Magnitudes[floor((o.vertexInWorldCoords.x+1.0)*(_NumPartitions/2 - 1))], // Idk why /2 - 1 is necessary
                         v.vertex.z,
                         1.0
                 );
-                
-                // set 0.uv and o.heightVal
 
                 o.vertex = UnityObjectToClipPos(xyz); 
                 

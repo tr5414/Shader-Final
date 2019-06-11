@@ -50,10 +50,10 @@ public class LineScript : MonoBehaviour {
 
 		for(int i = 0; i < numPartitions; i++){ // For each partition
 			
-			// Per-frame jumps in value are limited to +- 0.15
-			if(Math.Abs(magnitudes[i] - aveMag[i]) > 0.15f){
+			// Per-frame jumps in value are limited to +- 0.1
+			if(Math.Abs(magnitudes[i] - aveMag[i]) > 0.1f){
 				// Might as well overwrite an array we aren't gonna use anymore. We can think of it as "updatedMagnitudes"
-				magnitudes[i] = (magnitudes[i]>aveMag[i] ? magnitudes[i]-0.15f : magnitudes[i]+0.15f);
+				magnitudes[i] = (magnitudes[i]>aveMag[i] ? magnitudes[i]-0.1f : magnitudes[i]+0.1f);
 			}
 			else{
 				magnitudes[i] = aveMag[i];

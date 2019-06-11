@@ -160,8 +160,6 @@ public class PingPong_CellularAutomata : MonoBehaviour
             outputTex = texA;
         }
         
-        
-        Debug.Log("_Test "+rend.material.GetColor("_Test"));
 
         rend.material.SetTexture("_MainTex", inputTex);
 
@@ -203,7 +201,6 @@ public class PingPong_CellularAutomata : MonoBehaviour
         rend.material.shader = ouputTextureShader;
         rend.material.SetColor("_Alive", _Alive);
         rend.material.SetColor("_Dead", _Dead);
-        Debug.Log("_Alive "+_Alive);
        
         
 

@@ -37,9 +37,8 @@ public class AudioScript : MonoBehaviour
         }
 
         float mag = aveMag[0];
-        if(mag>0.6)
+        if(mag>0.6){
             root.GetComponent<PingPong_CellularAutomata>().AddPixel();
-
-        Debug.Log(mag);
+        }
     }
 }
